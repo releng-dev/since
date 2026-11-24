@@ -1,0 +1,30 @@
+name: Releng.dev since
+description: >-
+  Gives a check the commit it last passed in full, so the job can run only what changed since then
+  could break. Hand `sha` to your own tool, such as vitest --changed, jest --changedSince, nx
+  affected --base, or turbo --affected with TURBO_SCM_BASE; it picks the tests, not Releng.dev.
+  When `sha` is empty, run everything: the check hasn't passed in full yet, release.yml changed,
+  or a policy needs a full run before the stop that comes next. Check out with fetch-depth: 0 so
+  that commit is there. Releng.dev keeps the answer with the version.
+inputs:
+  check:
+    description: >-
+      Which check this is, when two jobs run the same tests, such as one before Beta and one
+      before Stable: give both the same name, and a full pass of either is the other's base.
+      Releng.dev reads it from release.yml. Defaults to the job's id.
+    required: false
+  server:
+    description: >-
+      A team's own Releng.dev server, such as https://releng.example.com. Leave it out for hosted
+      Releng.dev. The environment variable RELENG_URL wins over it.
+    required: false
+outputs:
+  sha:
+    description: The commit to compare with, or empty to run everything.
+  version:
+    description: The version that commit is, such as 2.4.0, or empty.
+  full:
+    description: Whether to run everything, as true or false.
+runs:
+  using: node24
+  main: dist/index.js
